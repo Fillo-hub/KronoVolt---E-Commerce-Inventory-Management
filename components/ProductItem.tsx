@@ -4,6 +4,7 @@ import React from "react";
 import Link from "next/link";
 import toast from "react-hot-toast";
 import { sanitize } from "@/lib/sanitize";
+import { resolveImageSrc } from "@/lib/image";
 import { useProductStore } from "@/app/_zustand/store";
 import { useWishlistStore } from "@/app/_zustand/wishlistStore";
 import { useCompareStore } from "@/app/_zustand/compareStore";
@@ -147,15 +148,7 @@ const ProductItem = ({
             className="relative flex items-center justify-center h-52 my-2"
           >
             <Image
-              src={
-                !product.mainImage
-                  ? "/product_placeholder.jpg"
-                  : product.mainImage.startsWith("http") ||
-                    product.mainImage.startsWith("/")
-                  ? product.mainImage
-                  : `/${product.mainImage}`
-              }
-              unoptimized={Boolean(product.mainImage?.startsWith("http"))}
+              src={resolveImageSrc(product.mainImage)}
               width={240}
               height={240}
               sizes="(max-width: 640px) 80vw, (max-width: 1024px) 40vw, 240px"

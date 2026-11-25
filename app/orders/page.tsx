@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import SectionTitle from "@/components/SectionTitle";
 import apiClient from "@/lib/api";
+import { resolveImageSrc } from "@/lib/image";
 import {
   FaBoxOpen,
   FaCheck,
@@ -269,11 +270,7 @@ function OrdersTrackerContent() {
                     >
                       <div className="flex items-center gap-3.5">
                         <Image
-                          src={
-                            item.product?.mainImage
-                              ? `/${item.product.mainImage}`
-                              : "/product_placeholder.jpg"
-                          }
+                          src={resolveImageSrc(item.product?.mainImage)}
                           width={56}
                           height={56}
                           alt={item.product?.title || "Prodotto"}

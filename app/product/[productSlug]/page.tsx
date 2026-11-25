@@ -1,7 +1,10 @@
+export const dynamic = "force-dynamic";
+
 import StockAvailabillity from "@/components/StockAvailabillity";
 import ProductTabs from "@/components/ProductTabs";
 import SingleProductDynamicFields from "@/components/SingleProductDynamicFields";
-import apiClient from "@/lib/api";
+import prisma from "@/utils/db";
+import { resolveImageSrc } from "@/lib/image";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -29,27 +32,22 @@ interface SingleProductPageProps {
 const SingleProductPage = async ({ params }: SingleProductPageProps) => {
   const paramsAwaited = await params;
 
-  const data = await apiClient.get(`/api/slugs/${paramsAwaited?.productSlug}`);
-  if (!data.ok) {
-    notFound();
-  }
-  const product = await data.json();
+  const product = await prisma.product.findFirst({
+    where: { slug: paramsAwaited?.productSlug },
+    include: { category: true },
+  });
 
-  if (!product || product.error) {
+  if (!product) {
     notFound();
   }
 
   let images: ImageItem[] = [];
-  if (product.id) {
-    try {
-      const imagesData = await apiClient.get(`/api/images/${product.id}`);
-      if (imagesData.ok) {
-        const parsed = await imagesData.json();
-        images = Array.isArray(parsed) ? parsed : [];
-      }
-    } catch {
-      images = [];
-    }
+  try {
+    images = await prisma.image.findMany({
+      where: { productID: product.id },
+    });
+  } catch {
+    images = [];
   }
 
   const rating = Math.min(5, Math.max(1, Number(product?.rating) || 5));
@@ -93,11 +91,7 @@ const SingleProductPage = async ({ params }: SingleProductPageProps) => {
           <div className="lg:col-span-5 flex flex-col items-center">
             <div className="w-full aspect-square max-w-md rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-center p-8">
               <Image
-                src={
-                  product?.mainImage
-                    ? `/${product?.mainImage}`
-                    : "/product_placeholder.jpg"
-                }
+                src={resolveImageSrc(product?.mainImage)}
                 width={420}
                 height={420}
                 priority
@@ -114,7 +108,7 @@ const SingleProductPage = async ({ params }: SingleProductPageProps) => {
                     className="w-20 h-20 rounded-xl bg-slate-50 border border-slate-200 p-2 flex items-center justify-center"
                   >
                     <Image
-                      src={`/${imageItem.image}`}
+                      src={resolveImageSrc(imageItem.image)}
                       width={72}
                       height={72}
                       alt="Product view"
@@ -170,7 +164,7 @@ const SingleProductPage = async ({ params }: SingleProductPageProps) => {
               <StockAvailabillity stock={94} inStock={product?.inStock} />
             </div>
 
-            <SingleProductDynamicFields product={product} />
+            <SingleProductDynamicFields product={product as any} />
 
             {/* Guarantees */}
             <div className="pt-5 border-t border-slate-200 grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs text-slate-600">
@@ -192,7 +186,7 @@ const SingleProductPage = async ({ params }: SingleProductPageProps) => {
 
         {/* Technical Specs Tabs */}
         <div className="mt-8">
-          <ProductTabs product={product} />
+          <ProductTabs product={product as any} />
         </div>
       </div>
     </div>

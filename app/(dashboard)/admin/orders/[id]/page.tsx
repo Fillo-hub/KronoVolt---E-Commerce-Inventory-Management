@@ -1,6 +1,7 @@
 "use client";
 import DashboardSidebar from "@/components/DashboardSidebar";
 import apiClient from "@/lib/api";
+import { resolveImageSrc } from "@/lib/image";
 import { isValidEmailAddressFormat } from "@/lib/utils";
 import Image from "next/image";
 import Link from "next/link";
@@ -314,11 +315,7 @@ const AdminSingleOrder = () => {
                 >
                   <div className="flex items-center gap-3">
                     <Image
-                      src={
-                        item?.product?.mainImage
-                          ? `/${item.product.mainImage}`
-                          : "/product_placeholder.jpg"
-                      }
+                      src={resolveImageSrc(item?.product?.mainImage)}
                       alt={item?.product?.title || "Prodotto"}
                       width={48}
                       height={48}

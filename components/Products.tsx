@@ -1,6 +1,6 @@
 import React from "react";
 import ProductItem from "./ProductItem";
-import apiClient from "@/lib/api";
+import prisma from "@/utils/db";
 import Link from "next/link";
 
 const Products = async ({
@@ -10,47 +10,57 @@ const Products = async ({
   params: { slug?: string[] };
   searchParams: { [key: string]: string | string[] | undefined };
 }) => {
-  const inStockNum =
-    searchParams?.inStock === undefined
-      ? 1
-      : searchParams?.inStock === "true"
-      ? 1
-      : 0;
-  const outOfStockNum =
+  const inStockChecked =
+    searchParams?.inStock === undefined ? true : searchParams.inStock === "true";
+  const outOfStockChecked =
     searchParams?.outOfStock === undefined
-      ? 1
-      : searchParams?.outOfStock === "true"
-      ? 1
-      : 0;
-  const page = searchParams?.page ? Number(searchParams?.page) : 1;
+      ? true
+      : searchParams.outOfStock === "true";
+  const page = Math.max(1, Number(searchParams?.page) || 1);
+  const maxPrice = Number(searchParams?.price) || 3000;
+  const minRating = Number(searchParams?.rating) || 0;
+  const sortByValue = String(searchParams?.sort || "defaultSort");
+  const categorySlug =
+    params?.slug && params.slug.length > 0 ? params.slug[0] : null;
 
-  let stockMode: string = "lte";
-  if (inStockNum === 1) stockMode = "equals";
-  if (outOfStockNum === 1) stockMode = "lt";
-  if (inStockNum === 1 && outOfStockNum === 1) stockMode = "lte";
-  if (inStockNum === 0 && outOfStockNum === 0) stockMode = "gt";
+  let stockFilter: any = { lte: 1 };
+  if (inStockChecked && !outOfStockChecked) stockFilter = { gte: 1 };
+  else if (!inStockChecked && outOfStockChecked) stockFilter = { lt: 1 };
+  else if (!inStockChecked && !outOfStockChecked) stockFilter = { lt: 0 };
+
+  let orderBy: any = undefined;
+  if (sortByValue === "titleAsc") orderBy = { title: "asc" };
+  else if (sortByValue === "titleDesc") orderBy = { title: "desc" };
+  else if (sortByValue === "lowPrice") orderBy = { price: "asc" };
+  else if (sortByValue === "highPrice") orderBy = { price: "desc" };
 
   let products: any[] = [];
 
   try {
-    const data = await apiClient.get(
-      `/api/products?filters[price][$lte]=${
-        searchParams?.price || 3000
-      }&filters[rating][$gte]=${
-        Number(searchParams?.rating) || 0
-      }&filters[inStock][$${stockMode}]=1&${
-        params?.slug && params.slug.length > 0
-          ? `filters[category][$equals]=${params.slug[0]}&`
-          : ""
-      }sort=${searchParams?.sort || "defaultSort"}&page=${page}`
-    );
-
-    if (data.ok) {
-      const result = await data.json();
-      products = Array.isArray(result) ? result : [];
-    }
+    products = await prisma.product.findMany({
+      skip: (page - 1) * 12,
+      take: 12,
+      where: {
+        price: { lte: maxPrice },
+        rating: { gte: minRating },
+        inStock: stockFilter,
+        ...(categorySlug
+          ? {
+              category: {
+                name: { equals: categorySlug, mode: "insensitive" },
+              },
+            }
+          : {}),
+      },
+      include: {
+        category: {
+          select: { name: true },
+        },
+      },
+      ...(orderBy ? { orderBy } : {}),
+    });
   } catch (error) {
-    console.error("Error fetching products:", error);
+    console.error("Error fetching products from Prisma:", error);
     products = [];
   }
 

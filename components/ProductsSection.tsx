@@ -1,7 +1,7 @@
 import React from "react";
 import ProductItem from "./ProductItem";
 import Heading from "./Heading";
-import apiClient from "@/lib/api";
+import prisma from "@/utils/db";
 import Link from "next/link";
 import { FaArrowRight } from "react-icons/fa6";
 
@@ -9,13 +9,16 @@ const ProductsSection = async () => {
   let products: any[] = [];
 
   try {
-    const data = await apiClient.get("/api/products");
-    if (data.ok) {
-      const result = await data.json();
-      products = Array.isArray(result) ? result : [];
-    }
+    products = await prisma.product.findMany({
+      take: 12,
+      include: {
+        category: {
+          select: { name: true },
+        },
+      },
+    });
   } catch (error) {
-    console.error("Error fetching products:", error);
+    console.error("Error fetching products from Prisma:", error);
     products = [];
   }
 
@@ -35,7 +38,7 @@ const ProductsSection = async () => {
           ) : (
             <div className="col-span-full text-center text-slate-500 py-12 bg-slate-50 rounded-2xl border border-slate-200">
               <p className="text-base font-medium">
-                Nessun prodotto disponibile al momento. Assicurati che il backend (porta 3001) sia attivo.
+                Nessun prodotto disponibile al momento nel database.
               </p>
             </div>
           )}

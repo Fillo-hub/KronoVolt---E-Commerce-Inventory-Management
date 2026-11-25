@@ -7,6 +7,7 @@ import { useSession } from "next-auth/react";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import apiClient from "@/lib/api";
+import { resolveImageSrc } from "@/lib/image";
 import { FaBolt, FaLock, FaWandMagicSparkles } from "react-icons/fa6";
 
 const CheckoutPage = () => {
@@ -436,11 +437,7 @@ const CheckoutPage = () => {
                 >
                   <div className="flex items-center gap-3">
                     <Image
-                      src={
-                        product?.image
-                          ? `/${product?.image}`
-                          : "/product_placeholder.jpg"
-                      }
+                      src={resolveImageSrc(product?.image)}
                       alt={product?.title}
                       width={56}
                       height={56}

@@ -14,6 +14,7 @@ import {
 } from "react-icons/fa6";
 import QuantityInputCart from "@/components/QuantityInputCart";
 import { sanitize } from "@/lib/sanitize";
+import { resolveImageSrc } from "@/lib/image";
 
 export const CartModule = () => {
   const { products, removeFromCart, clearCart, total } = useProductStore();
@@ -93,11 +94,7 @@ export const CartModule = () => {
                 <Image
                   width={110}
                   height={110}
-                  src={
-                    product?.image
-                      ? `/${product.image}`
-                      : "/product_placeholder.jpg"
-                  }
+                  src={resolveImageSrc(product?.image)}
                   alt={product.title}
                   className="max-h-24 w-auto object-contain"
                 />

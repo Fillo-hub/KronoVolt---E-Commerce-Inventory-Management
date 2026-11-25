@@ -6,6 +6,7 @@ import toast from "react-hot-toast";
 import SectionTitle from "@/components/SectionTitle";
 import { useWishlistStore } from "@/app/_zustand/wishlistStore";
 import { useProductStore } from "@/app/_zustand/store";
+import { resolveImageSrc } from "@/lib/image";
 import {
   FaBagShopping,
   FaHeart,
@@ -70,11 +71,7 @@ export default function WishlistPage() {
                       className="h-44 bg-slate-50 rounded-xl flex items-center justify-center p-4 mb-4"
                     >
                       <Image
-                        src={
-                          item.image
-                            ? `/${item.image}`
-                            : "/product_placeholder.jpg"
-                        }
+                        src={resolveImageSrc(item.image)}
                         width={160}
                         height={160}
                         alt={item.title}

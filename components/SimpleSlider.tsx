@@ -33,7 +33,7 @@ function SimpleSlider() {
               Shop now
             </Link>
           </div>
-          <img src="/slider image 1.webp" alt="slider 1" className="h-full" />
+          <img src="/slider-image-1.webp" alt="slider 1" className="h-full" />
         </div>
         <div className="h-[500px] max-lg:h-[400px] max-md:h-[250px] max-[500px]:h-[200px] max-[400px]:h-[150px] relative">
           <div className="absolute left-[50%] translate-x-[-50%] translate-y-[30%] h-full text-center max-lg:translate-y-[25%] max-md:translate-y-[20%] max-sm:hidden">
@@ -50,7 +50,7 @@ function SimpleSlider() {
               Shop now
             </Link>
           </div>
-          <img src="/slider image 2.webp" alt="slider 1" className="h-full" />
+          <img src="/slider-image-2.webp" alt="slider 2" className="h-full" />
         </div>
       </Slider>
     </div>

@@ -7,6 +7,7 @@ import SectionTitle from "@/components/SectionTitle";
 import { useCompareStore, CompareProduct } from "@/app/_zustand/compareStore";
 import { useProductStore } from "@/app/_zustand/store";
 import apiClient from "@/lib/api";
+import { resolveImageSrc } from "@/lib/image";
 import {
   FaBagShopping,
   FaCheck,
@@ -148,11 +149,7 @@ export default function ComparePage() {
                               className="h-36 flex items-center justify-center my-2"
                             >
                               <Image
-                                src={
-                                  item.mainImage
-                                    ? `/${item.mainImage}`
-                                    : "/product_placeholder.jpg"
-                                }
+                                src={resolveImageSrc(item.mainImage)}
                                 width={130}
                                 height={130}
                                 alt={item.title}
@@ -303,11 +300,7 @@ export default function ComparePage() {
                   >
                     <div className="flex items-center gap-3 min-w-0">
                       <Image
-                        src={
-                          prod.mainImage
-                            ? `/${prod.mainImage}`
-                            : "/product_placeholder.jpg"
-                        }
+                        src={resolveImageSrc(prod.mainImage)}
                         width={48}
                         height={48}
                         alt={prod.title}

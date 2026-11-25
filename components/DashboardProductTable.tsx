@@ -4,17 +4,10 @@ import Link from "next/link";
 import React, { useEffect, useState } from "react";
 import apiClient from "@/lib/api";
 import { sanitize } from "@/lib/sanitize";
+import { resolveImageSrc } from "@/lib/image";
 import { downloadCsvFile } from "@/lib/csv";
 import toast from "react-hot-toast";
 import { FaFileCsv, FaMagnifyingGlass, FaPlus } from "react-icons/fa6";
-
-function resolveImageSrc(src?: string) {
-  if (!src) return "/product_placeholder.jpg";
-  if (src.startsWith("http://") || src.startsWith("https://") || src.startsWith("/")) {
-    return src;
-  }
-  return `/${src}`;
-}
 
 const DashboardProductTable = () => {
   const [products, setProducts] = useState<Product[]>([]);

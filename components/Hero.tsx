@@ -116,7 +116,7 @@ const Hero = () => {
 
               <div className="relative flex items-center justify-center py-4">
                 <Image
-                  src="/watch for banner.png"
+                  src="/watch-for-banner.png"
                   width={300}
                   height={300}
                   priority

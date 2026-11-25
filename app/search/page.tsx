@@ -1,6 +1,8 @@
+export const dynamic = "force-dynamic";
+
 import ProductItem from "@/components/ProductItem";
 import SectionTitle from "@/components/SectionTitle";
-import apiClient from "@/lib/api";
+import prisma from "@/utils/db";
 import React from "react";
 import { sanitize } from "@/lib/sanitize";
 import Link from "next/link";
@@ -11,30 +13,33 @@ interface Props {
 
 const SearchPage = async ({ searchParams }: Props) => {
   const sp = await searchParams;
-  let products = [];
+  const q = (sp?.search || "").trim();
+  let products: any[] = [];
 
   try {
-    const data = await apiClient.get(
-      `/api/search?query=${encodeURIComponent(sp?.search || "")}`
-    );
-
-    if (data.ok) {
-      const result = await data.json();
-      products = Array.isArray(result) ? result : [];
-    }
+    products = await prisma.product.findMany({
+      where: q
+        ? {
+            OR: [
+              { title: { contains: q, mode: "insensitive" } },
+              { description: { contains: q, mode: "insensitive" } },
+              { manufacturer: { contains: q, mode: "insensitive" } },
+              { category: { name: { contains: q, mode: "insensitive" } } },
+            ],
+          }
+        : {},
+      include: { category: true },
+      take: 24,
+    });
   } catch (error) {
-    console.error("Error fetching search results:", error);
+    console.error("Error fetching search results from Prisma:", error);
     products = [];
   }
 
   return (
     <div className="bg-slate-50 min-h-screen pb-16">
       <SectionTitle
-        title={
-          sp?.search
-            ? `Risultati per "${sanitize(sp.search)}"`
-            : "Ricerca Prodotti"
-        }
+        title={q ? `Risultati per "${sanitize(q)}"` : "Ricerca Prodotti"}
         path="Home / Ricerca"
       />
       <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-10 pt-10">
@@ -60,8 +65,7 @@ const SearchPage = async ({ searchParams }: Props) => {
           ) : (
             <div className="col-span-full bg-white rounded-2xl border border-slate-200 p-12 text-center">
               <h3 className="text-xl font-bold text-slate-900">
-                Nessun risultato trovato per &ldquo;{sanitize(sp?.search || "")}
-                &rdquo;
+                Nessun risultato trovato per &ldquo;{sanitize(q)}&rdquo;
               </h3>
               <p className="text-sm text-slate-500 mt-2">
                 Prova a cercare per marca (es. Samsung, Sony, HP, Canon) o per

@@ -9,7 +9,11 @@
     "lint": "node ./node_modules/next/dist/bin/next lint",
     "db:generate": "node ./node_modules/prisma/build/index.js generate",
     "db:push": "node ./node_modules/prisma/build/index.js db push",
+    "db:seed": "node prisma/seed.js",
     "db:studio": "node ./node_modules/prisma/build/index.js studio"
+  },
+  "prisma": {
+    "seed": "node prisma/seed.js"
   },
   "dependencies": {
     "@headlessui/react": "^1.7.18",
