@@ -1,12 +1,20 @@
 const morgan = require('morgan');
 const fs = require('fs');
+const os = require('os');
 const path = require('path');
 const crypto = require('crypto');
 
-// Create logs directory if it doesn't exist
-const logsDir = path.join(__dirname, '..', 'logs');
-if (!fs.existsSync(logsDir)) {
-  fs.mkdirSync(logsDir, { recursive: true });
+// Use /tmp on serverless environments (Vercel) where the project root is read-only
+let logsDir = process.env.VERCEL
+  ? path.join(os.tmpdir(), 'kronovolt-logs')
+  : path.join(__dirname, '..', 'logs');
+
+try {
+  if (!fs.existsSync(logsDir)) {
+    fs.mkdirSync(logsDir, { recursive: true });
+  }
+} catch {
+  logsDir = os.tmpdir();
 }
 
 // Custom format for logging
@@ -15,17 +23,16 @@ morgan.token('userId', (req) => req.user?.id || 'anonymous');
 
 const logFormat = ':remote-addr - :remote-user [:date[clf]] ":method :url HTTP/:http-version" :status :res[content-length] ":referrer" ":user-agent" reqId=:reqId userId=:userId';
 
-const accessLogStream = fs.createWriteStream(
-  path.join(logsDir, 'access.log'),
-  { flags: 'a' }
-);
+let accessLogStream;
+let errorLogStream;
+try {
+  accessLogStream = fs.createWriteStream(path.join(logsDir, 'access.log'), { flags: 'a' });
+  errorLogStream = fs.createWriteStream(path.join(logsDir, 'error.log'), { flags: 'a' });
+} catch {
+  accessLogStream = process.stdout;
+  errorLogStream = process.stderr;
+}
 
-const errorLogStream = fs.createWriteStream(
-  path.join(logsDir, 'error.log'),
-  { flags: 'a' }
-);
-
-// Fast synchronous request ID generation using Node built-in crypto
 const addRequestId = (req, res, next) => {
   req.reqId = crypto.randomUUID().slice(0, 8);
   res.setHeader('X-Request-ID', req.reqId);

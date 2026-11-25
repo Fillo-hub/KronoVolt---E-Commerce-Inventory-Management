@@ -2,18 +2,22 @@ import config from "./config";
 
 export const apiClient = {
   get baseUrl() {
-    // On the server (SSR), use 127.0.0.1 directly to avoid Windows IPv6 localhost DNS delay
     if (typeof window === "undefined") {
-      return (config.apiBaseUrl || "http://127.0.0.1:3001").replace(
-        "://localhost:",
-        "://127.0.0.1:"
-      );
+      return config.serverApiBaseUrl;
     }
     return config.apiBaseUrl;
   },
 
+  buildUrl(endpoint: string): string {
+    const base = this.baseUrl;
+    if (!base) {
+      return endpoint.startsWith("/") ? endpoint : `/${endpoint}`;
+    }
+    return new URL(endpoint, base.endsWith("/") ? base : `${base}/`).toString();
+  },
+
   async request(endpoint: string, options: RequestInit = {}) {
-    const url = `${this.baseUrl}${endpoint}`;
+    const url = this.buildUrl(endpoint);
 
     const defaultOptions: RequestInit = {
       headers: {

@@ -66,6 +66,7 @@ const allowedOrigins = [
   'http://localhost:3001',
   process.env.NEXTAUTH_URL,
   process.env.FRONTEND_URL,
+  process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null,
 ].filter(Boolean); // Remove undefined values
 
 // CORS configuration with origin validation
@@ -75,7 +76,7 @@ const corsOptions = {
     if (!origin) return callback(null, true);
     
 
-    if (allowedOrigins.includes(origin)) {
+    if (allowedOrigins.includes(origin) || origin.endsWith('.vercel.app')) {
       return callback(null, true);
     }
     
@@ -174,6 +175,10 @@ const PORT = process.env.PORT || 3001;
 const prisma = require("./utills/db");
 prisma.$connect().catch(() => {});
 
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+if (require.main === module) {
+  app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+  });
+}
+
+module.exports = app;

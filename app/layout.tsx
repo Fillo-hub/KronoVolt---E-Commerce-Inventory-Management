@@ -16,6 +16,12 @@ export const metadata: Metadata = {
   icons: {
     icon: "/favicon.ico",
   },
+  openGraph: {
+    title: "KronoVolt — High-Performance Tech & Hardware E-Commerce",
+    description:
+      "Piattaforma e-commerce ad alte prestazioni per elettronica di consumo, workstation, fotografia, audio Hi-Fi e comparazione tecnica.",
+    type: "website",
+  },
 };
 
 export default function RootLayout({
@@ -40,26 +46,3 @@ export default function RootLayout({
     </html>
   );
 }
-
-export const metadata: Metadata = {
-  title: "KronoVolt — High-Performance Tech & Hardware E-Commerce",
-  description:
-    "Piattaforma e-commerce ad alte prestazioni per elettronica di consumo, workstation, fotografia, audio Hi-Fi e comparazione tecnica.",
-  icons: {
-    icon: "/favicon.ico",
-  },
-  openGraph: {
-    title: "KronoVolt — High-Performance Tech & Hardware E-Commerce",
-    description:
-      "Piattaforma e-commerce ad alte prestazioni per elettronica di consumo, workstation, fotografia, audio Hi-Fi e comparazione tecnica.",
-    type: "website",
-  },
-};
-```
-
-Salva il file (`Ctrl + S`) e aggiorna GitHub prima di passare alla demo live su Vercel:
-
-```bash
-git add app/layout.tsx
-git commit -m "chore: add Open Graph metadata to KronoVolt layout"
-git push
